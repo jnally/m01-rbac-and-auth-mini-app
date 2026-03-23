@@ -100,18 +100,18 @@ test_questions = {
 
 # presents the answer key to the math test (admin only!)
 def view_answer_key():
-    print('Test Answer Key (keep secret)\n')
+    print('\nTest Answer Key (keep secret)\n')
     for i in test_questions:
         print(i, ': question: ', test_questions[i]['question'], ' answer: ', test_questions[i]['answer'],sep='')
 
 # administers math test (user role only!)
 def take_test():
-    print('Math Test')
+    print('\nMath Test')
     score = 0
     possible = 100
     for i in test_questions:
         question = test_questions[i]['question']
-        question = 'Question #' + str(i) + ': ' + question + ' : '
+        question = 'Question #' + str(i) + ': ' + question + ' Entry: '
         answer = test_questions[i]['answer']
         user_input = input(question)
         while not(user_input.isnumeric()):
@@ -119,11 +119,13 @@ def take_test():
             user_input = input(question)
         if int(user_input) == answer:
             score += 25
-    print('Your test score is ', score, ' out of ', possible, '.', sep='')
+    print('\nYour test score is ', score, ' out of ', possible, '.', sep='')
 
 # verify that username is in the dictionary
 def username_exists(username):
-    return
+    if username in users:
+        return True
+    return False
 
 # very trusting login function that only prompts for a username and no password
 def login():
@@ -144,32 +146,64 @@ def main():
     while keep_going:
         # let user log in with just username  (up to 5 attempts)
         if not(logged_in):
-            username = input('Enter your username: ')
+            username = input('\nEnter your username: ')
             attempts += 1
             while not(username_exists(username)):
+                if attempts >= 5:
+                    print('Too many login attempts. Exiting...')
+                    return 1
                 print('Invalid username')
                 username = input('Enter your username: ')
                 attempts += 1
-                if attempts >= 5:
-                    return 1
+            logged_in = True
             attempts = 0
+        if not(logged_in):
+            username = ''
+            del user
+            print('Exiting...')
+            return 1
+        user = users[username]
 
         # menu
-        if username['role'] == 'admin':
-            #todo
-        elif username['role'] == 'user':
-            #todo
+        if user['role'] == 'admin':
+            print('\nAdmin Menu')
+            print('View Math Test Answer Key. Enter K')
+            print('Logout. Enter L')
+            print('Quit Program. Enter Q')
+            choice = input('Enter selection: ')
+            if choice.upper() == 'K':
+                view_answer_key()
+            elif choice.upper() == 'L':
+                username = ''
+                del user
+                logged_in = False
+            elif choice.upper() == 'Q':
+                username = ''
+                del user
+                logged_in = False
+                keep_going = False
+        elif user['role'] == 'user':
+            print('\nUser Menu')
+            print('Take Math Test. Enter T')
+            print('Logout. Enter L')
+            print('Quit Program. Enter Q')
+            choice = input('Enter selection: ')
+            if choice.upper() == 'T':
+                take_test()
+            elif choice.upper() == 'L':
+                username = ''
+                del user
+                logged_in = False
+            elif choice.upper() == 'Q':
+                username = ''
+                del user
+                logged_in = False
+                keep_going = False
         else:
             print('Nothing to choose...') # should not happen with current users
-
-        # prompt user for logout
-        logout = input('Would you like to log out and close? Y or N: ')
-        if logout.toupper() == 'Y':
             logged_in = False
             keep_going = False
-    #view_answer_key()
-    #take_test()
-    return
+    return 0
 
 if __name__ == '__main__':
     main()
