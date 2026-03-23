@@ -84,16 +84,13 @@
 ## 10 pts
 ##
 
+# users dictionary with roles
 users = {
     'carl': {'role':'admin'},
     'donut': {'role':'user'}
     }
 
-function_access = {
-    'admin': ['view_answer_key'],
-    'user': ['take_test']
-    }
-
+# simple math test questions for use by the functions
 test_questions = {
     1: {'question':'What is 4*5?','answer':20},
     2: {'question':'What is 2^6?','answer':64},
@@ -101,11 +98,13 @@ test_questions = {
     4: {'question':'What is the slope of a horizontal line?','answer':0},
     }
 
+# presents the answer key to the math test (admin only!)
 def view_answer_key():
     print('Test Answer Key (keep secret)\n')
     for i in test_questions:
         print(i, ': question: ', test_questions[i]['question'], ' answer: ', test_questions[i]['answer'],sep='')
 
+# administers math test (user role only!)
 def take_test():
     print('Math Test')
     score = 0
@@ -121,14 +120,53 @@ def take_test():
         if int(user_input) == answer:
             score += 25
     print('Your test score is ', score, ' out of ', possible, '.', sep='')
-        
-            
-def login():
-    #
+
+# verify that username is in the dictionary
+def username_exists(username):
     return
 
+# very trusting login function that only prompts for a username and no password
+def login():
+    username = input('Enter your username: ')
+    while not(username_exists):
+        print('Invalid username')
+        username = input('Enter your username: ')    
+    return username
 
+# present very trusting user login, admin carl can view math test answer key, user donut can take a math test
 def main():
+    keep_going = True
+    logged_in = False
+    username = ''
+    attempts = 0
+
+    # loop until user wishes to exit or too many failed login attempts
+    while keep_going:
+        # let user log in with just username  (up to 5 attempts)
+        if not(logged_in):
+            username = input('Enter your username: ')
+            attempts += 1
+            while not(username_exists(username)):
+                print('Invalid username')
+                username = input('Enter your username: ')
+                attempts += 1
+                if attempts >= 5:
+                    return 1
+            attempts = 0
+
+        # menu
+        if username['role'] == 'admin':
+            #todo
+        elif username['role'] == 'user':
+            #todo
+        else:
+            print('Nothing to choose...') # should not happen with current users
+
+        # prompt user for logout
+        logout = input('Would you like to log out and close? Y or N: ')
+        if logout.toupper() == 'Y':
+            logged_in = False
+            keep_going = False
     #view_answer_key()
     #take_test()
     return
